@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getCustomerById, listCustomerMeta, listCustomers, type CustomerFiltersInput } from "@/server/customer.functions";
+import { getCustomerById, listCustomerMeta, listCustomers, type CustomerFiltersInput } from "#/server/customer.functions.ts";
 
 export const customerListQueryOptions = (filters: CustomerFiltersInput = {}) =>
   queryOptions({

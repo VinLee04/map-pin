@@ -1,5 +1,3 @@
-"use client";
-
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import type { CustomerFilters, CustomerGroup, Personality, Street } from "@/lib/types";
@@ -20,7 +18,7 @@ export const FilterDrawer = ({ open, onOpenChange, filters, onChange, streets, g
   };
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange} swipeDirection="down" showSwipeHandle>
+    <Drawer open={open} onOpenChange={onOpenChange} >
       <DrawerContent className="mx-auto max-h-[85dvh] max-w-md">
         <DrawerHeader className="text-left"><DrawerTitle>Bộ lọc</DrawerTitle><DrawerDescription>Lọc nhanh danh sách khách hàng đã lưu.</DrawerDescription></DrawerHeader>
         <div className="space-y-5 overflow-y-auto p-4 pb-8">

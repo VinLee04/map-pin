@@ -1,6 +1,6 @@
 import { mutationOptions } from "@tanstack/react-query";
-import type { CustomerInput } from "@/server/customer.functions";
-import { createCustomer, createGroup, createPersonality, createStreet, deleteCustomer, updateCustomer, updateCustomerAddress } from "@/server/customer.functions";
+import type { CustomerInput } from "#/server/customer.functions.ts";
+import { createCustomer, createGroup, createPersonality, createStreet, deleteCustomer, updateCustomer, updateCustomerAddress } from "#/server/customer.functions.ts";
 
 export const createCustomerMutation = mutationOptions({
   mutationKey: ["customers", "create"],

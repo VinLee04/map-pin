@@ -1,10 +1,12 @@
+// customer.functions.ts
+
 import { createServerFn } from "@tanstack/react-start";
 import { and, eq, ilike, or, asc, desc } from "drizzle-orm";
 import { z } from "zod";
 import { SYSTEM_PERSONALITIES } from "@/lib/data";
 import { db } from "@/db";
 import { customers, groups, personalityTags, streets } from "@/db/schema";
-import { ensureSession } from "@/lib/auth.functions";
+import { getSessionOrFallback } from "@/lib/auth.functions";
 
 const nullableString = z.string().trim().max(1000).nullable().optional();
 const locationTypeSchema = z.enum(["house", "boarding", "office"]);
@@ -102,7 +104,7 @@ const getCustomer = async (userId: string, id: string) => {
 export const listCustomers = createServerFn({ method: "GET" })
   .validator((data: CustomerFiltersInput) => data)
   .handler(async ({ data }) => {
-    const session = await ensureSession();
+    const session = await getSessionOrFallback();
     const filters = data;
     const conditions = [eq(customers.userId, session.user.id)];
 
@@ -152,7 +154,7 @@ export type CustomerFiltersInput = {
 export const getCustomerById = createServerFn({ method: "GET" })
   .validator((data: { id: string }) => data)
   .handler(async ({ data }) => {
-    const session = await ensureSession();
+    const session = await getSessionOrFallback();
     return getCustomer(session.user.id, data.id);
   });
 
@@ -160,7 +162,7 @@ export const createCustomer = createServerFn({ method: "POST" })
   .validator(customerInputSchema)
   .handler(async ({ data }) => {
     console.log('server data', data)
-    const session = await ensureSession();
+    const session = await getSessionOrFallback();
     await assertRelationsBelongToUser({ ...data, userId: session.user.id });
 
     const [created] = await db.insert(customers).values({
@@ -188,7 +190,7 @@ export const createCustomer = createServerFn({ method: "POST" })
 export const updateCustomer = createServerFn({ method: "POST" })
   .validator(z.object({ id: z.string().uuid(), data: customerInputSchema }))
   .handler(async ({ data }) => {
-    const session = await ensureSession();
+    const session = await getSessionOrFallback();
     await assertRelationsBelongToUser({ ...data.data, userId: session.user.id });
 
     const [updated] = await db.update(customers)
@@ -203,7 +205,7 @@ export const updateCustomer = createServerFn({ method: "POST" })
 export const deleteCustomer = createServerFn({ method: "POST" })
   .validator(z.object({ id: z.string().uuid() }))
   .handler(async ({ data }) => {
-    const session = await ensureSession();
+    const session = await getSessionOrFallback();
     const [deleted] = await db.delete(customers)
       .where(and(eq(customers.id, data.id), eq(customers.userId, session.user.id)))
       .returning({ id: customers.id });
@@ -215,7 +217,7 @@ export const deleteCustomer = createServerFn({ method: "POST" })
 export const updateCustomerAddress = createServerFn({ method: "POST" })
   .validator(z.object({ id: z.string().uuid(), address: addressInputSchema }))
   .handler(async ({ data }) => {
-    const session = await ensureSession();
+    const session = await getSessionOrFallback();
     const [updated] = await db.update(customers)
       .set({
         latitude: data.address.latitude,
@@ -237,7 +239,7 @@ const namedEntitySchema = z.object({ name: z.string().trim().min(1).max(255) });
 export const createStreet = createServerFn({ method: "POST" })
   .validator(namedEntitySchema.extend({ areaName: z.string().trim().max(255).nullable().optional() }))
   .handler(async ({ data }) => {
-    const session = await ensureSession();
+    const session = await getSessionOrFallback();
     const [street] = await db.insert(streets).values({ userId: session.user.id, name: data.name, areaName: data.areaName ?? null }).returning();
     return street;
   });
@@ -245,7 +247,7 @@ export const createStreet = createServerFn({ method: "POST" })
 export const createGroup = createServerFn({ method: "POST" })
   .validator(namedEntitySchema.extend({ streetId: z.string().uuid() }))
   .handler(async ({ data }) => {
-    const session = await ensureSession();
+    const session = await getSessionOrFallback();
     const [street] = await db.select({ id: streets.id }).from(streets).where(and(eq(streets.id, data.streetId), eq(streets.userId, session.user.id))).limit(1);
     if (!street) throw new Error("INVALID_STREET");
     const [group] = await db.insert(groups).values({ userId: session.user.id, streetId: data.streetId, name: data.name }).returning();
@@ -255,13 +257,13 @@ export const createGroup = createServerFn({ method: "POST" })
 export const createPersonality = createServerFn({ method: "POST" })
   .validator(z.object({ label: z.string().trim().min(1).max(100) }))
   .handler(async ({ data }) => {
-    const session = await ensureSession();
+    const session = await getSessionOrFallback();
     const [personality] = await db.insert(personalityTags).values({ userId: session.user.id, label: data.label, isSystem: false }).returning();
     return personality;
   });
 
 export const listCustomerMeta = createServerFn({ method: "GET" }).validator(() => ({})).handler(async () => {
-  const session = await ensureSession();
+  const session = await getSessionOrFallback();
 
   await Promise.all(SYSTEM_PERSONALITIES.map(async (label) => {
     await db.insert(personalityTags)

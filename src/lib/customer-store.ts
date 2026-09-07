@@ -3,7 +3,7 @@
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { createGroupMutation, createPersonalityMutation, createStreetMutation, createCustomerMutation, deleteCustomerMutation, updateCustomerMutation, updateCustomerAddressMutation } from "@/lib/customer.mutations";
 import { customerListQueryOptions, customerMetaQueryOptions } from "@/lib/customer.queries";
-import type { CustomerFiltersInput } from "@/server/customer.functions";
+import type { CustomerFiltersInput } from "#/server/customer.functions.ts";
 
 export const useCustomerStore = (filters: CustomerFiltersInput = {}) => {
   const queryClient = useQueryClient();

@@ -1,4 +1,4 @@
-"use client";
+// components/customer-form.tsx
 
 import { useMemo, useState } from "react";
 import { Plus, Save } from "lucide-react";
@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { ROOF_COLORS, GATE_COLORS } from "@/lib/data";
 import type { Customer, CustomerGroup, Personality, Street } from "@/lib/types";
-import type { CustomerInput } from "@/server/customer.functions";
+import type { CustomerInput } from "#/server/customer.functions.ts";
 
 type CustomerFormProps = {
   initial?: Customer | null;

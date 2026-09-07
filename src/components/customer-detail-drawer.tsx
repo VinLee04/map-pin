@@ -1,4 +1,4 @@
-"use client";
+// components/customer-detail-drawer.tsx
 
 import { useEffect } from "react";
 import { ExternalLink, MapPin, Navigation, Phone, RefreshCw, Pencil, Trash2 } from "lucide-react";

@@ -1,6 +1,8 @@
+// server/maps.functions.ts
+
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { ensureSession } from "@/lib/auth.functions";
+import { getSessionOrFallback } from "@/lib/auth.functions";
 
 const coordinatesSchema = z.object({
   latitude: z.number().finite().gte(-90).lte(90),
@@ -10,7 +12,7 @@ const coordinatesSchema = z.object({
 export const reverseGeocode = createServerFn({ method: "POST" })
   .validator(coordinatesSchema)
   .handler(async ({ data }) => {
-    await ensureSession();
+    await getSessionOrFallback();
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     if (!apiKey) throw new Error("GOOGLE_MAPS_API_KEY is not configured");
 

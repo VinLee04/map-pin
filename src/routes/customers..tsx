@@ -7,7 +7,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import CustomerForm from "@/components/customer-form";
 import { customerMetaQueryOptions, customerQueryOptions } from "@/lib/customer.queries";
 import { createGroupMutation, createPersonalityMutation, updateCustomerMutation } from "@/lib/customer.mutations";
-import type { CustomerInput } from "@/server/customer.functions";
+import type { CustomerInput } from "#/server/customer.functions.ts";
 
 export const Route = createFileRoute("/customers/")({ component: EditCustomerPage });
 
