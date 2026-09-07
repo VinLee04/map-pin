@@ -31,8 +31,8 @@ function NewCustomerPage() {
         streets={streets}
         groups={groups}
         personalities={personalities}
-        onAddGroup={(data) => store.createGroup.mutate(data)}
-        onAddPersonality={(data) => store.createPersonality.mutate(data)}
+        onAddGroup={(data: any) => store.createGroup.mutate(data)}
+        onAddPersonality={(data: any) => store.createPersonality.mutate(data)}
         onSubmit={(customer) => {
           store.createCustomer.mutate(customer, {
             onSuccess: () => {

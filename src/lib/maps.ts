@@ -4,12 +4,12 @@ export const getGoogleMapsEmbedUrl = (latitude: number, longitude: number): stri
 
   const params = new URLSearchParams({
     key,
-    center: `${latitude},${longitude}`,
+    q: `${latitude},${longitude}`, // Đổi từ center thành q để hiện ghim đỏ
     zoom: "17",
     maptype: "roadmap",
   });
 
-  return `https://www.google.com/maps/embed/v1/view?${params.toString()}`;
+  return `https://www.google.com/maps/embed/v1/place?${params.toString()}`; // Đổi từ view thành place
 };
 
 export const getGoogleMapsUrl = (latitude: number, longitude: number): string =>
