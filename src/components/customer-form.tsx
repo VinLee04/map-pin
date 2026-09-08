@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { LocationPicker} from "@/components/location-picker";
+import type { PickedLocation } from "@/components/location-picker";
 import { ROOF_COLORS, GATE_COLORS } from "@/lib/data";
 import type { Customer, CustomerGroup, Personality, Street } from "@/lib/types";
 import type { CustomerInput } from "#/server/customer.functions.ts";
@@ -19,7 +21,7 @@ type CustomerFormProps = {
   personalities: Personality[] | undefined;
   onCreateGroup: (streetId: string, name: string) => Promise<CustomerGroup>;
   onCreatePersonality: (label: string) => Promise<Personality>;
-  onSubmit: (data: CustomerInput) => Promise<void>;
+  onSubmit: (data: CustomerInput, location: PickedLocation | null) => Promise<void>;
   onCancel: () => void;
   submitting?: boolean;
 };
@@ -64,6 +66,19 @@ export const CustomerForm = ({
   const [personalityDialogOpen, setPersonalityDialogOpen] = useState(false);
   const [newPersonality, setNewPersonality] = useState("");
 
+  // Vị trí Google Maps — tách riêng khỏi form chính vì đây là field optional,
+  // cập nhật độc lập qua bản đồ, không thuộc customerInputSchema.
+  const [location, setLocation] = useState<PickedLocation | null>(
+    initial?.latitude != null && initial.longitude != null
+      ? {
+          latitude: initial.latitude,
+          longitude: initial.longitude,
+          formattedAddress: initial.formattedAddress ?? null,
+          placeId: initial.placeId ?? null,
+        }
+      : null,
+  );
+
   const availableGroups = useMemo(
     () => groups?.filter((group) => group.streetId === form.streetId),
     [groups, form.streetId],
@@ -82,8 +97,7 @@ export const CustomerForm = ({
 
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
-    console.log('log', form)
-    await onSubmit(form);
+    await onSubmit(form, location);
   };
 
   const addGroup = async () => {
@@ -199,6 +213,14 @@ export const CustomerForm = ({
           <FieldLabel>Ghi chú riêng cho shipper</FieldLabel>
           <Textarea value={form.description ?? ""} onChange={(event) => update("description", event.target.value || null)} placeholder="Đặc điểm trước cửa, chỗ để hàng, chỗ gửi xe…" className="min-h-28" />
         </Field>
+
+        <Field>
+          <FieldLabel>Vị trí Google Maps <span className="font-normal text-muted-foreground">(không bắt buộc — có thể thêm sau)</span></FieldLabel>
+          <LocationPicker value={location} onChange={setLocation} />
+          {location?.formattedAddress && (
+            <p className="mt-2 text-sm text-muted-foreground">{location.formattedAddress}</p>
+          )}
+        </Field>
       </FieldGroup>
 
       <div className="mt-6 grid grid-cols-2 gap-2">
@@ -233,7 +255,8 @@ const ColorPicker = ({ colors, value, onChange }: ColorPickerProps) => (
         title={color.name}
         aria-label={`Màu ${color.name}`}
         aria-pressed={value === color.name}
-        className={`grid size-10 place-items-center rounded-full border-2 border-border transition-transform active:scale-95 ${color.name === "Đỏ" ? "bg-[#c0392b]" : color.name === "Xanh dương" ? "bg-[#2980b9]" : color.name === "Vàng" ? "bg-[#e1a721]" : "bg-[#7f8c8d]"}`}
+        className="grid size-10 place-items-center rounded-full border-2 border-border transition-transform active:scale-95"
+        style={{ backgroundColor: color.hex }}
         onClick={() => onChange(value === color.name ? null : color.name)}
       >
         {value === color.name && <span className="text-white">✓</span>}

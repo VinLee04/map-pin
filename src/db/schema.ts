@@ -1,3 +1,5 @@
+// db/schema.ts
+
 import { relations } from "drizzle-orm";
 import {
   boolean,
@@ -82,6 +84,10 @@ export const streets = pgTable(
     userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
     name: varchar("name", { length: 255 }).notNull(),
     areaName: varchar("area_name", { length: 255 }),
+    // Tọa độ trung tâm của con đường — shipper tự ghim 1 lần lúc tạo, dùng để
+    // center bản đồ nhanh khi thêm khách hàng mới thuộc đường này.
+    centerLatitude: doublePrecision("center_latitude"),
+    centerLongitude: doublePrecision("center_longitude"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
@@ -97,6 +103,10 @@ export const groups = pgTable(
     userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
     streetId: uuid("street_id").references(() => streets.id, { onDelete: "cascade" }),
     name: varchar("name", { length: 255 }).notNull(),
+    // Tọa độ trung tâm của nhóm — ưu tiên hơn tọa độ street khi center map,
+    // vì nhóm thường mô tả 1 khu vực nhỏ và chính xác hơn (vd "Tổ 1", "Tạp hóa A").
+    centerLatitude: doublePrecision("center_latitude"),
+    centerLongitude: doublePrecision("center_longitude"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
